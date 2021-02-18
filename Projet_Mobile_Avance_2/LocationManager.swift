@@ -22,6 +22,33 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
         manager.startUpdatingLocation()
     }
     
+    public func resolveLocationName(with location: CLLocation,
+                                    completion: @escaping ((String?) -> Void)) {
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location, preferredLocale: .current) { placemark,
+            error in
+            guard let place = placemark?.first, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            print(place)
+            
+            var name = ""
+            
+            if let locality = place.locality {
+                name += locality
+            }
+            
+            if let adminRegion = place.administrativeArea {
+                name += ", \(adminRegion)"
+            }
+            
+            completion(name)
+            
+        }
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else {
             return
